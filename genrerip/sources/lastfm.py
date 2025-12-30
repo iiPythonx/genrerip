@@ -22,7 +22,7 @@ def search_lastfm(path, audio, genres: list[tuple[int, str]]) -> None:
     else:
         release_id = audio.get("musicbrainz_albumid")
         if release_id is None:
-            return print("lastfm search failed, due to lacking album artist, lacking album, AND lacking mbid")
+            return console.print(f"[red]\\[-] (LastFM) No album/artist/mbid preset on [bright_magenta]{path}[/], cannot search.")
 
         parameters += f"&mbid={release_id[0]}"
 

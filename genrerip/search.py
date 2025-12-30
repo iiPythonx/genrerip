@@ -24,6 +24,9 @@ GENRE_MAP = {
     "ebm": "EBM",
     "aor": "AOR",
     "idm": "IDM",
+    "eai": "EAI",
+    "ost": "Soundtrack",
+    "8bit": "8-bit",
     "hexd": "HexD"
 }
 WORD_REMAP = {
@@ -35,9 +38,20 @@ WORD_REMAP = {
 def validate_genres(genres: list[tuple[int, str]]) -> list[str]:
     finalized_genres = []
     for score, genre in genres:
-        final_name, name_distance, _ = process.extract(genre, ALLOWED_GENRES, scorer = distance, limit = 1, processor = utils.default_process)[0]
-        if name_distance > 2:
-            continue
+        final_name = None
+
+        # Some genres are so short that even a distance of 2 results in major
+        # inaccuracies, so in that case, look for an exact match only
+        if len(genre) <= 4:
+            if genre.lower() not in ALLOWED_GENRES:
+                continue
+
+            final_name = genre
+
+        if final_name is None:
+            final_name, name_distance, _ = process.extract(genre, ALLOWED_GENRES, scorer = distance, limit = 1, processor = utils.default_process)[0]
+            if name_distance > 2:
+                continue
 
         finalized_genres.append((score, final_name))
 
