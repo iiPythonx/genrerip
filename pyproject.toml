@@ -1,12 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "genrerip"
-version = "0.1.0"
-description = "Add your description here"
+dynamic = ["version"]
+description = "Tool to rip genre data for an entire music collection."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "aiohttp[speedups]>=3.13.2",
     "musicbrainzngs>=0.7.1",
     "mutagen>=1.47.0",
+    "rapidfuzz>=3.14.3",
+    "requests>=2.32.5",
     "rich>=14.2.0",
 ]
+
+[dependency-groups]
+dev = [
+    "hatch>=1.16.2",
+]
+
+[tool.hatch.version]
+path = "genrerip/__init__.py"
+
+[project.scripts]
+genrerip = "genrerip.__main__:genrerip"
