@@ -18,24 +18,8 @@ from genrerip.sources import SEARCH_MODULES
 
 # Initialization
 ALLOWED_SUFFIXES = [".mp3", ".flac"]
-ALLOWED_GENRES   = json.loads((Path(__file__).parent / "data/genres.json").read_text())
-GENRE_MAP = {
-    "edm": "EDM",
-    "ebm": "EBM",
-    "aor": "AOR",
-    "idm": "IDM",
-    "eai": "EAI",
-    "rnb": "R&B",
-    "ost": "Soundtrack",
-    "vgm": "Video game music",
-    "jpop": "j-pop",
-    "8bit": "8-bit",
-    "hexd": "HexD"
-}
-WORD_REMAP = {
-    "r&b": "R&B",
-    "R&b": "R&B"
-}
+ALL_GENRE_DATA   = json.loads((Path(__file__).parent / "data/genres.json").read_text())
+KEEP_GENRE_COUNT = 4
 
 # Handle validation of genre tags
 def validate_genres(genres: list[tuple[int, str]]) -> list[str]:
@@ -46,13 +30,13 @@ def validate_genres(genres: list[tuple[int, str]]) -> list[str]:
         # Some genres are so short that even a distance of 2 results in major
         # inaccuracies, so in that case, look for an exact match only
         if len(genre) <= 4:
-            if genre.lower() not in ALLOWED_GENRES:
+            if genre.lower() not in ALL_GENRE_DATA["genres"]:
                 continue
 
             final_name = genre
 
         if final_name is None:
-            final_name, name_distance, _ = process.extract(genre, ALLOWED_GENRES, scorer = distance, limit = 1, processor = utils.default_process)[0]
+            final_name, name_distance, _ = process.extract(genre, ALL_GENRE_DATA["genres"], scorer = distance, limit = 1, processor = utils.default_process)[0]
             if name_distance > 2:
                 continue
 
@@ -63,13 +47,13 @@ def validate_genres(genres: list[tuple[int, str]]) -> list[str]:
 
     # Word/genre remapping
     for index, genre in enumerate(finalized_genres.copy()):
-        for look, replace in WORD_REMAP.items():
+        for look, replace in ALL_GENRE_DATA["word_remap"].items():
             genre = genre.replace(look, replace)
 
-        finalized_genres[index] = GENRE_MAP.get(genre.lower(), genre)
+        finalized_genres[index] = ALL_GENRE_DATA["remap"].get(genre.lower(), genre)
 
     # Deduplicate and collapse to 4 genres
-    return list(dict.fromkeys(finalized_genres))[:4]
+    return list(dict.fromkeys(finalized_genres))[:KEEP_GENRE_COUNT]
 
 # Handle bulk file processing
 def read_file(path: Path):
