@@ -14,4 +14,8 @@ def genrerip() -> None:
     if not music_target.is_dir():
         return console.print("[red][bold]genrerip:[/] given path is not a valid directory!")
 
-    search(music_target, ["mbz", "lfm"])
+    try:
+        search(music_target, ["mbz", "lfm"])
+
+    except KeyboardInterrupt:
+        pass
