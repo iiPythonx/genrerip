@@ -25,7 +25,10 @@ GENRE_MAP = {
     "aor": "AOR",
     "idm": "IDM",
     "eai": "EAI",
+    "rnb": "R&B",
     "ost": "Soundtrack",
+    "vgm": "Video game music",
+    "jpop": "j-pop",
     "8bit": "8-bit",
     "hexd": "HexD"
 }
@@ -55,14 +58,18 @@ def validate_genres(genres: list[tuple[int, str]]) -> list[str]:
 
         finalized_genres.append((score, final_name))
 
-    finalized_genres = list(dict.fromkeys(genre.capitalize() for _, genre in sorted(finalized_genres, key = lambda genre: genre[0], reverse = True)))[:4]
+    # Auto capitalization
+    finalized_genres = [genre.capitalize() for _, genre in sorted(finalized_genres, key = lambda genre: genre[0], reverse = True)]
+
+    # Word/genre remapping
     for index, genre in enumerate(finalized_genres.copy()):
         for look, replace in WORD_REMAP.items():
             genre = genre.replace(look, replace)
 
         finalized_genres[index] = GENRE_MAP.get(genre.lower(), genre)
 
-    return finalized_genres
+    # Deduplicate and collapse to 4 genres
+    return list(dict.fromkeys(finalized_genres))[:4]
 
 # Handle bulk file processing
 def read_file(path: Path):
